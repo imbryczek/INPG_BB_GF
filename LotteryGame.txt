@@ -1,0 +1,62 @@
+class Game
+{
+public:
+        Game() {};
+        ~Game()
+        {
+                for (auto ticket : tickets)
+                {
+                        delete ticket;
+                }
+        }
+
+        void Menu()
+        {
+                int numTic = 0;
+                std::cout << "Welcome to the PowerBall Lottery!" << std::endl;
+                std::cout << "To play you need to purchase a ticket at $2. More tickets increase the odds to win." << std::endl;
+                std::cout << "How many tickets would you like? " << std::endl;
+
+                do
+                {
+                        std::cout << "Enter amount of tickets you would like to purchase: ";
+                        std::cin >> numTic;
+                        std::cin.sync();
+
+                        if ((numTic < 1) || (numTic > 100))
+                        {
+                                std::cout << "Input invalid. Needs to be a number between 1 and 100. Please try again" << std::endl;
+                        }
+                } while ((numTic < 1) || (numTic > 100));
+
+                createTickets(numTic);
+                std::cout << "Your tickets are registered. Thank you for playing the PowerBall lottery!" << std::endl;
+        }
+
+        void Play()
+        {
+                std::cout << "Let\'s see this weeks PowerBall lottery numbers!" << std::endl;
+                lotto.display();
+
+                for (auto ticket : tickets)
+                {
+                        ticket->display();
+                }
+
+                Winning w(tickets, lotto.getBalls());
+                w.getWinnings();
+        }
+
+private:
+        std::vector<Ticket*> tickets;
+        Lottery lotto;
+
+        void createTickets(int numTic)
+        {
+                for (int i = 0; i < numTic; i++)
+                {
+                        tickets.push_back(new Ticket);
+                }
+        }
+};
+

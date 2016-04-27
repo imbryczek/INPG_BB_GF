@@ -1,0 +1,39 @@
+void sequence(char ***dest, char **src, int row, int col) //generowanie nowego pokolenia
+{
+
+    int i,j;
+    for(i=1; i<row-1; i++) { //1 i -1 zeby pominac krawedzie
+        for(j=1; j<col-1; j++)
+        {
+            int licznik=0;
+            int check_row;
+            for(check_row=i-1; check_row<=i+1; check_row++) {
+                int check_col;
+                for(check_col=j-1; check_col<=j+1;check_col++) {
+                    if(check_row != i || check_col != j) { 
+                        if(src[check_row][check_col]=='X') {
+                            licznik++;
+                          }
+                      }
+                }
+            }
+            if(src[i][j]=='X') {
+                if(licznik==2 || licznik==3) {
+                    (*dest)[i][j]='X';
+                }
+                else {
+                    (*dest)[i][j]=' ';
+                }
+            }
+            
+            if(src[i][j]==' ') {
+                if(licznik==3) {
+                    (*dest)[i][j]='X';
+                }
+                else {
+                    (*dest)[i][j]=' ';
+                }
+            }
+        }
+    }
+}

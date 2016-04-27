@@ -1,0 +1,202 @@
+char** create_matrix(int row, int col) {                                                         //CREATE
+    int i,j;
+    char **matrix = (char**)malloc(row * sizeof(*matrix) );     //przydzial pamieci na wiersze
+
+    if(matrix == NULL) {
+        printf("Blad przydzialu pamieci");
+        return NULL;
+    }
+
+    for(i=0; i<row; i++) {
+        matrix[i] = (char*)malloc(col * sizeof(matrix));     //przydzial na kolumny
+        if(matrix[i] == NULL) {
+            delete_matrix(&matrix,i);
+            printf("Blad przydzialu pamieci");
+            return NULL;
+        }
+    }
+  
+    for(i=0; i<row; i++) {       //wypelnianie zerami calej tablicy
+        for(j=0; j<col; j++) {
+            matrix[i][j]=' ';
+        }
+    }
+  
+    return matrix;
+}
+
+int delete_matrix(char*** matrix, int row) {                                                     //DELETE
+    int i;
+    
+    for(i=0; i<row; i++) {
+        free((*matrix)[i]);
+        (*matrix)[i]=NULL;
+    }
+    free(*matrix);
+    *matrix=NULL;
+    return 0;
+}
+
+void at(char** matrix, int row, int col) {
+    printf("%c", matrix[row][col]);
+}
+
+void insert(char** matrix, int row, int col) {
+    int i,j;
+    printf("Wprowadz wiersz: ");
+    scanf("%d", &i);
+    printf("Wprowadz kolumne: ");
+    scanf("%d", &j);
+    if(i<=0 || i>row || j<=0 || j>col) {
+        printf("Wspolrzedne poza tablica.\n");
+    }
+    else {    
+        matrix[i-1][j-1]='X';
+    }
+    
+}
+  
+  
+void write_out(char** matrix, int row, int col) {                                            //WRITE OUT
+    int i,j;
+    printf("\n\n");
+    for(i=0; i<row; i++) {
+        for(j=0; j<col; j++) {
+            printf("%2c", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+  
+void copy_matrix(char*** dest, char** source, int row, int col) {                                    //COPY  
+    int i,j;
+    for(i=0; i<row; i++) {
+        for(j=0; j<col; j++) {
+            (*dest)[i][j]=source[i][j];
+        }
+    }
+
+}
+
+int resize_matrix(char*** matrix, int* row, int* col) {                                                        //RESIZE
+    int i, j, choice;
+    char** new_matrix=create_matrix((*row)+2,(*col)+2);
+    for(i=0;i<(*row)+2;i++) {                //wyzerowanie kazdego elementu NOWEJ tablicy
+        for(j=0;j<(*col)+2;j++) {
+            new_matrix[i][j]=' ';
+        }
+    }
+    for(i=0;i<(*row);i++) { //przepisanie wartosci ze zmienionymi indeksami, tak aby powstala otoczka z zer
+        for(j=0;j<(*col);j++) {
+            new_matrix[i+1][j+1]=(*matrix)[i][j]; //otoczka z zer
+        }
+    }
+    delete_matrix(matrix, *row);
+    *row = (*row)+2;
+    *col = (*col)+2;
+    *matrix = new_matrix;
+}
+
+
+
+char** fill_matrix(char** tab, int row, int col)
+{
+      int x,y;
+      FILE *pwejscie;
+      if((pwejscie=fopen("danewej.txt","r"))==NULL)
+    printf("nie udalo sie otworzyc pliku dane_wejsciowe.txt\n");
+      while(!feof(pwejscie))
+      {
+            fscanf(pwejscie, "%d", &x);
+            fscanf(pwejscie, "%d", &y);
+            tab[x][y]='X';
+        }
+      if(fclose(pwejscie))
+                         printf("blad przy zamykaniu pliku danewej");
+      return tab;
+}
+
+void wyjsciowe(char** tab,int row, int col)
+{
+     FILE * pwyjscie;
+     int i,j;
+     char x;
+     char a,b;
+     a=' ';
+     b='\n';
+     if((pwyjscie=fopen("danewyj.txt","w"))==NULL)
+                                                         printf("nie udalo sie otworzyc pliku dane_wyjsciowe\n");
+     for(i=0;i<row;i++)
+     {
+                       for(j=0;j<col;j++)
+                       {
+                                         if(tab[i][j]=='X')
+                                         {
+                                                               fprintf(pwyjscie, "%d", i); 
+                                                               fprintf(pwyjscie, "%c", a);
+                                                               fprintf(pwyjscie, "%d", j); 
+                                                              fprintf(pwyjscie, "%c", b);  
+                                         }
+                       }
+     }
+     if(fclose(pwyjscie))
+                         printf("blad przy zamykaniu pliku dane_wyjsciowe");
+     return;
+}
+
+int main() { 
+    int row=40, col=40;
+    char** new_matrix = create_matrix(row,col);
+    char** old_matrix = create_matrix(row,col);
+    int choice;
+    int r;
+
+    
+    /*for(r=0; r<5; r++) { //                                                                manualne wpisywanie
+        insert(old_matrix, row, col);
+    }*/
+       
+       while(1) {
+           //system("cls");
+           printf("1. Wykonaj 10 iteracji Gry w Zycie. \n2. Wczytaj dane wejsciowe z pliku. \n3. Zapisz stan gry do pliku. \n4. Zakoncz dzialanie programu.\n");    
+           scanf("%d", &choice);
+           switch(choice) {
+               case 1: {
+                write_out(old_matrix, row, col);
+                usleep(500000);
+                int iter=0;
+                while(iter<10) { 
+                    sequence(&new_matrix, old_matrix, row, col);
+                    system("cls");
+            		write_out(new_matrix, row, col);
+                    copy_matrix(&old_matrix, new_matrix, row, col);
+                    usleep(500000);
+                    iter++;
+                }
+                continue;
+            }
+            case 2: {
+                old_matrix = fill_matrix(old_matrix, row, col);
+                system("cls");
+                printf("Pomyslnie wczytano wspolrzedne.\n");
+                continue;
+            }
+            case 3: {
+                wyjsciowe(old_matrix, row, col);
+                system("cls");
+                printf("Pomyslnie zapisano wspolrzedne.\n");
+                continue;
+            }
+            case 4: {
+                delete_matrix(&new_matrix, row);
+                delete_matrix(&old_matrix, row);
+                printf("\nWyczyszczono pamiec - pomyslne wyjscie z programu.\n");
+                return 0;;
+            }
+            default: {
+                printf("Podano niewlasciwa wartosc");
+                continue;
+            }
+        }
+    }
+}

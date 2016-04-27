@@ -1,0 +1,160 @@
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+struct data{
+    char Name[20];
+    char Surname[20];
+    int Year;
+};
+
+struct e_list{
+    struct data Person;
+    struct e_list *Next;
+};
+
+void print_list(struct e_list *head){ //wypisywanie listy
+    struct e_list *point;
+    if(head == NULL){
+        printf("Lista jest pusta :( \n");
+    }else{
+        for(point = head; point != NULL; point = point->Next){
+            printf("Imie: %10s Nazwisko: %10s Rok: %d\n", point->Person.Name, point->Person.Surname, point->Person.Year);
+        }
+    }
+}
+
+struct e_list *add_elem_front(struct data new_data, struct e_list *new_elem){ //dodawanie elementu na poczatku
+    struct e_list *head = malloc(sizeof(struct e_list));
+    if(head == NULL){
+        return NULL;
+    }else{
+        head->Person = new_data;
+        head->Next = new_elem;
+        return head;
+    }
+}
+
+void add_elem_end(struct data new_data, struct e_list **head){ //dodawanie elementu na koncu
+    struct e_list *new_elem = malloc(sizeof(struct e_list));
+    struct e_list *point = *head;
+    if(new_elem == NULL){
+            free(new_elem);
+    }else{
+        while(point->Next != NULL){
+            point = point->Next;
+        }
+        new_elem->Next = NULL;
+        new_elem->Person = new_data;
+        point->Next = new_elem;
+    }
+}
+
+void search_list_number(struct e_list *head, int number){ //wyszukiwanie elementu za pomoca roku urodzenia
+    struct e_list *point;
+    for(point = head; point != NULL; point = point->Next){
+        if(point->Person.Year == number){
+            printf("Imie: %10s Nazwisko: %10s Rok: %d\n", point->Person.Name, point->Person.Surname, point->Person.Year);
+        }
+    }
+
+}
+
+void search_list_surname(struct e_list *head, char *surname){ //wyszukiwanie elementu za pomoca kolejnych liter nazwiska
+    struct e_list *point;
+    int i = 0, rowne = 1;
+    int TRUE = 1;
+    for(point = head; point != NULL; point = point->Next){
+        rowne = 1;
+        for(i = 0; surname[i] != '\0'; i++){
+            if(surname[i] != point->Person.Surname[i]){
+                rowne = 0;
+                break;
+            }
+        }
+        if(rowne == TRUE){
+            printf("Imie: %10s Nazwisko: %10s Rok: %d\n", point->Person.Name, point->Person.Surname, point->Person.Year);
+        }
+    }
+
+}
+
+struct e_list *add_elem(struct data new_data, struct e_list *head, int numer){ //dodawanie elementu w miejscu za n-tym elementem
+    struct e_list *new_elem = malloc(sizeof(struct e_list));
+    struct e_list *point = head;
+    int i = 0;
+    if(new_elem == NULL){
+        return NULL;
+    }else{
+        new_elem->Next = head;
+        new_elem->Person = new_data;
+        for(i = 0; i < numer; i++){
+            point = point->Next;
+            if(point == NULL){
+                return head;
+            }
+        }
+        new_elem->Next = point->Next;
+        point->Next = new_elem;
+        return head;
+    }
+}
+
+void delete_elem_front(struct e_list **head){ //usuwanie elementu na poczatku listy
+    struct e_list *phead = *head;
+    if(phead == NULL){
+        printf("Lista jest pusta :( \n");
+    }else{
+        *head = (*head)->Next;
+        free(phead);
+    }
+}
+
+struct e_list *delete_elem_end(struct e_list *head){ //uswuwanie elementu na koncu listy
+    struct e_list *point = head;
+    if(point == NULL){
+        printf("Lista jest pusta :( \n");
+        return NULL;
+    }else if(point->Next == NULL){
+        free(head);
+        head = NULL;
+        return NULL;
+    }else{
+        while((point->Next->Next) != NULL){
+            point = point->Next;
+        }
+        free(point->Next);
+        point->Next = NULL;
+        return head;
+    }
+}
+
+
+struct e_list *delete_list(struct e_list *head){ //czyszczenie calej listy
+    struct e_list *point;
+    if(head == NULL){
+        printf("Lista jest pusta :( \n");
+    }else{
+        for(point = head; point != NULL; point = point->Next){
+            free(point);
+        }
+    }
+}
+
+main(){
+    struct e_list *lista = NULL;
+    int i;
+    struct data data[5] = {{"Ala", "Sajek", 1995}, {"Bartek", "Bryk", 1996}, {"Patrycja", "Saferna", 1996},{"Karol", "Niewierny", 1993}, {"Anna", "Pogoda", 1995}};
+    for(i = 0; i < 5; i++){
+        lista = add_elem_front(data[i], lista);
+    }
+    print_list(lista);
+    lista = delete_elem_end(lista);
+    printf("\n");
+    search_list_surname(lista, "Sa");
+    printf("\n");
+    print_list(lista);
+    lista = delete_list(lista);
+    free(lista);
+    lista = NULL;
+}

@@ -1,0 +1,16 @@
+int main (void) {
+	long int *matrix;
+	long int i;
+	long int range;
+	printf("Poszukiwanie liczb pierwszych w przedziale 0 - ");
+	scanf("%d", &range);
+	matrix=create_matrix(range); //alokacja pamieci
+	if(matrix == NULL) {
+		return 0;
+	}
+	fill_matrix(matrix, range); //wypelnienie tablicy kolejnymi liczbami
+	sieve(matrix, range); 
+	write_out(matrix, range);
+	free(matrix);
+	return 0;
+}
